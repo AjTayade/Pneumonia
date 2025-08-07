@@ -102,7 +102,7 @@
                             <h1 class="text-3xl font-bold text-white">Pneumonia Detection AI</h1>
                             <!-- NEW: Definition of Pneumonia -->
                             <p class="mt-3 text-sm text-gray-400 text-left bg-gray-800/50 p-3 rounded-lg">
-                                <b>Pneumonia</b> is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid, causing cough, fever, and difficulty breathing. This AI tool analyzes chest X-rays to identify visual indicators of this condition.
+                                **Pneumonia** is an infection that inflames the air sacs in one or both lungs. The air sacs may fill with fluid, causing cough, fever, and difficulty breathing. This AI tool analyzes chest X-rays to identify visual indicators of this condition.
                             </p>
                         </div>
 
@@ -110,9 +110,9 @@
                         <div class="text-left mt-4">
                              <h3 class="font-semibold text-white mb-2">How to get a result:</h3>
                             <ol class="list-decimal list-inside space-y-1 text-sm text-gray-400">
-                                <li><b>Upload an Image:</b> Click or drag-and-drop an X-ray file onto the area below.</li>
-                                <li><b>Start Analysis:</b> Click the "Analyze Image" button.</li>
-                                <li><b>View Prediction:</b> The card will flip to show the result.</li>
+                                <li>**Upload an Image:** Click or drag-and-drop an X-ray file onto the area below.</li>
+                                <li>**Start Analysis:** Click the "Analyze Image" button.</li>
+                                <li>**View Prediction:** The card will flip to show the result.</li>
                             </ol>
                         </div>
                     </div>
@@ -127,7 +127,8 @@
                                 <span>Upload a file</span>
                             </label>
                             <p class="text-xs text-gray-500 mt-1">or drag and drop</p>
-                            <input id="file-upload" type="file" class="sr-only" accept="image/png, image/jpeg, image/jpg">
+                            <!-- UPDATED: Accept any image format -->
+                            <input id="file-upload" type="file" class="sr-only" accept="image/*">
                         </div>
                     </div>
 
