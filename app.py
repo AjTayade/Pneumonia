@@ -1,7 +1,8 @@
 # app.py
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
-from ai_edge_litert import Interpreter # Use the new lightweight interpreter
+# CORRECTED IMPORT for the lightweight interpreter
+from ai_edge_litert.py.interpreter import Interpreter 
 import numpy as np
 import os
 from PIL import Image
