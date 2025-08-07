@@ -16,7 +16,7 @@ app = Flask(__name__)
 # Define the path to your trained model file.
 # IMPORTANT: Make sure the 'pneumonia_model.h5' file is in the same directory
 # as this 'app.py' file, or provide the correct path.
-MODEL_PATH = 'pneumonia_model.h5'
+MODEL_PATH = 'pneumonia_cnn_model.keras'
 
 # Load the trained model
 # We are creating a dummy model here for demonstration purposes.
@@ -139,4 +139,4 @@ if __name__ == '__main__':
     # 2. Save your trained model as 'pneumonia_model.h5' in this directory.
     # 3. Create a folder named 'templates' and put the 'index.html' file inside it.
     # 4. Run this script from your terminal: python app.py
-    app.run(debug=True)
+    app.run()
