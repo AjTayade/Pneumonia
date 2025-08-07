@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy the requirements file into the container
 COPY requirements.txt .
 
-# Install the smaller, remaining dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install the smaller, remaining dependencies, ignoring packages already installed in the base image
+RUN pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 # Copy the rest of your application code into the container
 COPY . .
