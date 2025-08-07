@@ -140,7 +140,7 @@ def predict():
     # 3. Create a folder named 'templates' and put the 'index.html' file inside it.
     # 4. Run this script from your terminal: python app.py
 
-    if __name__ == '__main__':
+if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
