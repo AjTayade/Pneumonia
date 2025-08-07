@@ -2,8 +2,6 @@
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 import numpy as np
 import os
 from PIL import Image
@@ -12,21 +10,25 @@ import io
 # Initialize the Flask application
 app = Flask(__name__)
 
-# --- Model Loading ---
-# Define the path to your trained model file.
-MODEL_PATH = 'pneumonia_cnn_model.keras'
+# --- Model Loading (TensorFlow Lite) ---
+# Define the path to your trained .tflite model file.
+MODEL_PATH = 'pneumonia_cnn_model_float16.tflite'
 
-# Load your actual model
+# Load the TFLite model and allocate tensors.
 try:
-    model = load_model(MODEL_PATH)
-    print(f"Successfully loaded model from: {MODEL_PATH}")
+    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    # Get input and output tensor details.
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    print(f"Successfully loaded TFLite model from: {MODEL_PATH}")
 except Exception as e:
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(f"!!! CRITICAL ERROR: COULD NOT LOAD MODEL from {MODEL_PATH}")
+    print(f"!!! CRITICAL ERROR: COULD NOT LOAD TFLITE MODEL from {MODEL_PATH}")
     print(f"!!! Error: {e}")
     print("!!! The app will not work without the model.")
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    model = None
+    interpreter = None
 
 # --- Image Preprocessing Function ---
 def preprocess_image(img_file):
@@ -42,21 +44,21 @@ def preprocess_image(img_file):
         # Open the image file using PIL
         img = Image.open(io.BytesIO(img_file.read()))
         
-        # --- THIS IS THE FIX ---
-        # Convert image to grayscale ('L' mode) to match the model's expected input
+        # Convert image to grayscale ('L' mode)
         img = img.convert('L') 
         
         # Resize the image to the target size your model expects (e.g., 150x150)
         img = img.resize((150, 150))
         
         # Convert the image to a numpy array
-        img_array = image.img_to_array(img)
+        img_array = np.array(img, dtype=np.float32)
         
-        # Rescale the image data (if your model was trained with rescaled data)
+        # Rescale the image data
         img_array /= 255.0
         
         # Expand the dimensions to match the model's input shape (1, 150, 150, 1)
-        img_array = np.expand_dims(img_array, axis=0)
+        img_array = np.expand_dims(img_array, axis=-1) # Add channel dimension
+        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
         
         return img_array
     except Exception as e:
@@ -74,19 +76,16 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Handles the image upload and prediction.
+    Handles the image upload and prediction using the TFLite interpreter.
     """
-    # Check if the model was loaded successfully
-    if model is None:
+    if interpreter is None:
         return jsonify({'error': 'Model is not loaded, check server logs.'}), 500
 
-    # Check if a file was posted
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request'}), 400
     
     file = request.files['file']
 
-    # Check if a file was selected
     if file.filename == '':
         return jsonify({'error': 'No file selected for uploading'}), 400
 
@@ -97,8 +96,15 @@ def predict():
             if processed_image is None:
                 return jsonify({'error': 'Could not process image'}), 500
 
-            # Make a prediction
-            prediction = model.predict(processed_image)
+            # --- TFLite Prediction ---
+            # Set the value of the input tensor
+            interpreter.set_tensor(input_details[0]['index'], processed_image)
+            
+            # Run the inference
+            interpreter.invoke()
+            
+            # Extract the output data from the output tensor
+            prediction = interpreter.get_tensor(output_details[0]['index'])
             
             # Interpret the prediction
             confidence = float(prediction[0][0])
