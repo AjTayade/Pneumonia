@@ -14,28 +14,25 @@ app = Flask(__name__)
 
 # --- Model Loading ---
 # Define the path to your trained model file.
-# IMPORTANT: Make sure the 'pneumonia_model.h5' file is in the same directory
-# as this 'app.py' file, or provide the correct path.
 MODEL_PATH = 'pneumonia_cnn_model.keras'
 
-# Load the trained model
-# We are creating a dummy model here for demonstration purposes.
-# In a real scenario, you would uncomment the line `model = load_model(MODEL_PATH)`
-# and ensure your actual model file is present.
-
+# Load your actual model
 try:
-    # Load your actual model
     model = load_model(MODEL_PATH)
-    print("Successfully loaded model from:", MODEL_PATH)
+    print(f"Successfully loaded model from: {MODEL_PATH}")
 except Exception as e:
-    print(f"Error loading model: {e}")
-    # Exit or handle the error appropriately if the model can't be loaded
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print(f"!!! CRITICAL ERROR: COULD NOT LOAD MODEL from {MODEL_PATH}")
+    print(f"!!! Error: {e}")
+    print("!!! The app will not work without the model.")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     model = None
 
 # --- Image Preprocessing Function ---
 def preprocess_image(img_file):
     """
     Preprocesses the uploaded image to match the model's input requirements.
+    - Converts to Grayscale.
     - Resizes the image to 150x150 pixels.
     - Converts the image to a NumPy array.
     - Rescales the pixel values.
@@ -44,16 +41,23 @@ def preprocess_image(img_file):
     try:
         # Open the image file using PIL
         img = Image.open(io.BytesIO(img_file.read()))
-        # Ensure image is in RGB format
-        img = img.convert('RGB')
+        
+        # --- THIS IS THE FIX ---
+        # Convert image to grayscale ('L' mode) to match the model's expected input
+        img = img.convert('L') 
+        
         # Resize the image to the target size your model expects (e.g., 150x150)
         img = img.resize((150, 150))
+        
         # Convert the image to a numpy array
         img_array = image.img_to_array(img)
+        
         # Rescale the image data (if your model was trained with rescaled data)
         img_array /= 255.0
-        # Expand the dimensions to match the model's input shape (1, 150, 150, 3)
+        
+        # Expand the dimensions to match the model's input shape (1, 150, 150, 1)
         img_array = np.expand_dims(img_array, axis=0)
+        
         return img_array
     except Exception as e:
         print(f"Error in preprocessing image: {e}")
@@ -65,8 +69,6 @@ def index():
     """
     Renders the main page of the web application.
     """
-    # The 'index.html' file should be in a folder named 'templates'
-    # in the same directory as this 'app.py' file.
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
@@ -74,6 +76,10 @@ def predict():
     """
     Handles the image upload and prediction.
     """
+    # Check if the model was loaded successfully
+    if model is None:
+        return jsonify({'error': 'Model is not loaded, check server logs.'}), 500
+
     # Check if a file was posted
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request'}), 400
@@ -94,20 +100,13 @@ def predict():
             # Make a prediction
             prediction = model.predict(processed_image)
             
-            # If the model is a dummy, return a random result for demonstration
-            if hasattr(model, 'is_dummy') and model.is_dummy:
-                prediction_result = 'Pneumonia' if np.random.rand() > 0.5 else 'Normal'
-                confidence = np.random.uniform(0.5, 1.0)
+            # Interpret the prediction
+            confidence = float(prediction[0][0])
+            if confidence > 0.5:
+                prediction_result = 'Pneumonia'
             else:
-                # Interpret the prediction
-                # This assumes your model outputs a single value (sigmoid activation)
-                # where > 0.5 means Pneumonia. Adjust this threshold if needed.
-                confidence = float(prediction[0][0])
-                if confidence > 0.5:
-                    prediction_result = 'Pneumonia'
-                else:
-                    prediction_result = 'Normal'
-                    confidence = 1 - confidence # Show confidence for the 'Normal' class
+                prediction_result = 'Normal'
+                confidence = 1 - confidence # Show confidence for the 'Normal' class
 
             return jsonify({
                 'prediction': prediction_result,
@@ -119,15 +118,7 @@ def predict():
             return jsonify({'error': 'An error occurred during prediction.'}), 500
 
 # --- Main execution ---
-
-    # To run this app:
-    # 1. Make sure you have Flask, TensorFlow, and Pillow installed:
-    #    pip install Flask tensorflow Pillow
-    # 2. Save your trained model as 'pneumonia_model.h5' in this directory.
-    # 3. Create a folder named 'templates' and put the 'index.html' file inside it.
-    # 4. Run this script from your terminal: python app.py
-
 if __name__ == '__main__':
-    import os
+    # This block is for deployment platforms like Render, Heroku, etc.
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
