@@ -2,7 +2,7 @@
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
 # CORRECTED IMPORT for the lightweight interpreter
-from ai_edge_litert.py.interpreter import Interpreter 
+from ai_edge_litert.lite_runtime.interpreter import Interpreter 
 import numpy as np
 import os
 from PIL import Image
