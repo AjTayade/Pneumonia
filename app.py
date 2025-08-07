@@ -132,11 +132,15 @@ def predict():
             return jsonify({'error': 'An error occurred during prediction.'}), 500
 
 # --- Main execution ---
-if __name__ == '__main__':
+
     # To run this app:
     # 1. Make sure you have Flask, TensorFlow, and Pillow installed:
     #    pip install Flask tensorflow Pillow
     # 2. Save your trained model as 'pneumonia_model.h5' in this directory.
     # 3. Create a folder named 'templates' and put the 'index.html' file inside it.
     # 4. Run this script from your terminal: python app.py
-    app.run()
+
+    if __name__ == '__main__':
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
