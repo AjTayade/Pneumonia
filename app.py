@@ -22,28 +22,15 @@ MODEL_PATH = 'pneumonia_cnn_model.keras'
 # We are creating a dummy model here for demonstration purposes.
 # In a real scenario, you would uncomment the line `model = load_model(MODEL_PATH)`
 # and ensure your actual model file is present.
+
 try:
-    # model = load_model(MODEL_PATH)
-    # Dummy model for placeholder - REMOVE THIS and use the line above
-    model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(150, 150, 3)),
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
-        tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(1, activation='sigmoid')
-    ])
-    print("Model loaded successfully. Using a placeholder model for now.")
-    print("Please replace it with your actual 'pneumonia_model.h5'.")
+    # Load your actual model
+    model = load_model(MODEL_PATH)
+    print("Successfully loaded model from:", MODEL_PATH)
 except Exception as e:
     print(f"Error loading model: {e}")
-    print("Creating a dummy model for demonstration.")
-    # Create a dummy model if loading fails, so the app can still run.
-    model = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(150, 150, 3)),
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(1, activation='sigmoid')
-    ])
-    model.is_dummy = True # Flag to indicate this is not the real model
+    # Exit or handle the error appropriately if the model can't be loaded
+    model = None
 
 # --- Image Preprocessing Function ---
 def preprocess_image(img_file):
