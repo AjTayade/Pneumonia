@@ -1,6 +1,6 @@
 # Use an official TensorFlow CPU image as the base.
 # This image comes with Python and TensorFlow pre-installed.
-FROM tensorflow/tensorflow:2.16.1-slim
+FROM tensorflow/tensorflow:2.17.0-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -19,3 +19,4 @@ EXPOSE 10000
 
 # Command to run the application using Gunicorn (a production-ready server)
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
+
