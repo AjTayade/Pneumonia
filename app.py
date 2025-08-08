@@ -1,8 +1,7 @@
 # app.py
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
-# CORRECTED IMPORT for the lightweight interpreter
-from ai_edge_litert.lite_runtime.interpreter import Interpreter 
+import tensorflow as tf # Use the main TensorFlow library
 import numpy as np
 import os
 from PIL import Image
@@ -11,18 +10,20 @@ import io
 # Initialize the Flask application
 app = Flask(__name__)
 
-# --- Model Loading (AI Edge LiteRT) ---
+# --- Model Loading (TFLite via TensorFlow) ---
 MODEL_PATH = 'pneumonia_cnn_model_float16.tflite'
 interpreter = None
-output_tensor_name = None
+input_details = None
+output_details = None
 
 try:
-    # Load the LiteRT interpreter
-    interpreter = Interpreter(model_path=MODEL_PATH)
-    # Get the name of the output tensor
+    # Load the TFLite model using the interpreter from the main TF library
+    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    # Get input and output tensor details.
+    input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
-    output_tensor_name = list(output_details.keys())[0]
-    print(f"Successfully loaded LiteRT model from: {MODEL_PATH}")
+    print(f"Successfully loaded TFLite model from: {MODEL_PATH}")
 except Exception as e:
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     print(f"!!! CRITICAL ERROR: COULD NOT LOAD MODEL from {MODEL_PATH}")
@@ -55,7 +56,7 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Handles the image upload and prediction using the LiteRT interpreter.
+    Handles the image upload and prediction using the TFLite interpreter.
     """
     if interpreter is None:
         return jsonify({'error': 'Model is not loaded, check server logs.'}), 500
@@ -74,11 +75,10 @@ def predict():
             if processed_image is None:
                 return jsonify({'error': 'Could not process image'}), 500
 
-            # --- LiteRT Prediction ---
-            prediction_dict = interpreter.run(processed_image)
-            
-            # Get the result from the output tensor using its name.
-            prediction = prediction_dict[output_tensor_name]
+            # --- TFLite Prediction ---
+            interpreter.set_tensor(input_details[0]['index'], processed_image)
+            interpreter.invoke()
+            prediction = interpreter.get_tensor(output_details[0]['index'])
             
             confidence = float(prediction[0][0])
             if confidence > 0.5:
