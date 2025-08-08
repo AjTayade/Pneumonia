@@ -2,4 +2,4 @@ Flask
 Pillow
 numpy
 gunicorn
-tensorflow-cpu
+tflite-runtime
