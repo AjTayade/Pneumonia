@@ -1,7 +1,8 @@
 # app.py
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
-import tensorflow as tf # Use the main TensorFlow library
+# Use the lightweight tflite-runtime interpreter
+from tflite_runtime.interpreter import Interpreter 
 import numpy as np
 import os
 from PIL import Image
@@ -10,15 +11,15 @@ import io
 # Initialize the Flask application
 app = Flask(__name__)
 
-# --- Model Loading (TFLite via TensorFlow) ---
+# --- Model Loading (TFLite Runtime) ---
 MODEL_PATH = 'pneumonia_cnn_model_float16.tflite'
 interpreter = None
 input_details = None
 output_details = None
 
 try:
-    # Load the TFLite model using the interpreter from the main TF library
-    interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+    # Load the TFLite model and allocate tensors.
+    interpreter = Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
     # Get input and output tensor details.
     input_details = interpreter.get_input_details()
