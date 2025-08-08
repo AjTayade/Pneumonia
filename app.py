@@ -39,7 +39,7 @@ def preprocess_image(img_file):
     try:
         img = Image.open(io.BytesIO(img_file.read()))
         img = img.convert('L') # Convert to grayscale
-        img = img.resize((150, 150))
+        img = img.resize((100, 100))
         img_array = np.array(img, dtype=np.float32)
         img_array /= 255.0
         img_array = np.expand_dims(img_array, axis=-1)
