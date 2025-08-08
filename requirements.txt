@@ -2,4 +2,4 @@ Flask
 Pillow
 numpy
 gunicorn
-ai_edge_litert
+tensorflow-cpu
