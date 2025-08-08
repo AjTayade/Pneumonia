@@ -12,7 +12,7 @@ import io
 app = Flask(__name__)
 
 # --- Model Loading (TFLite Runtime) ---
-MODEL_PATH = 'pneumonia_cnn_model_float16.tflite'
+MODEL_PATH = 'Pneumonia_CNN_model.tflite'
 interpreter = None
 input_details = None
 output_details = None
