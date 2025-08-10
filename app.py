@@ -16,7 +16,7 @@ app = Flask(__name__)
 # Get the absolute path of the directory where app.py is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Join this path with the model filename to create a robust, absolute path
-MODEL_PATH = os.path.join(BASE_DIR, 'Pneumonia_CNN_model.tflite')
+MODEL_PATH = os.path.join(BASE_DIR, 'Pneumonia_model.tflite')
 # --- Model Loading (TFLite Runtime) ---
 #MODEL_PATH = 'Pneumonia_CNN_model.tflite'
 interpreter = None
