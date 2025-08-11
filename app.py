@@ -20,7 +20,7 @@ CLASS_NAMES = ['COVID', 'NORMAL', 'PNEUMONIA']
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Join this path with the model filename to create a robust, absolute path
 # Make sure your .tflite file is in the same directory as app.py
-MODEL_PATH = os.path.join(BASE_DIR, '3_class_pneumonia_model (1).tflite')
+MODEL_PATH = os.path.join(BASE_DIR, '3Class_pneumonia_model.tflite')
 
 interpreter = None
 input_details = None
