@@ -1,8 +1,8 @@
 # app.py
 # Import necessary libraries
 from flask import Flask, request, jsonify, render_template
-# Use the lightweight tflite-runtime interpreter
-from tflite_runtime.interpreter import Interpreter 
+# Use the lightweight tflAite-runtime interpreter
+from tflite_runtime.interpreter import Interpreter
 import numpy as np
 import os
 from PIL import Image
@@ -11,14 +11,17 @@ import io
 # Initialize the Flask application
 app = Flask(__name__)
 
+# --- Define Class Names (in alphabetical order, as Keras does) ---
+# This order is confirmed from your training notebook's `class_indices`
+CLASS_NAMES = ['COVID', 'NORMAL', 'PNEUMONIA']
 
 # --- Model Loading (TFLite Runtime) ---
 # Get the absolute path of the directory where app.py is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Join this path with the model filename to create a robust, absolute path
+# Make sure your .tflite file is in the same directory as app.py
 MODEL_PATH = os.path.join(BASE_DIR, '3_class_pneumonia_model (1).tflite')
-# --- Model Loading (TFLite Runtime) ---
-#MODEL_PATH = 'Pneumonia_CNN_model.tflite'
+
 interpreter = None
 input_details = None
 output_details = None
@@ -63,14 +66,14 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     """
-    Handles the image upload and prediction using the TFLite interpreter.
+    Handles the image upload and prediction for the 3-class model.
     """
     if interpreter is None:
         return jsonify({'error': 'Model is not loaded, check server logs.'}), 500
 
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request'}), 400
-    
+
     file = request.files['file']
 
     if file.filename == '':
@@ -85,14 +88,19 @@ def predict():
             # --- TFLite Prediction ---
             interpreter.set_tensor(input_details[0]['index'], processed_image)
             interpreter.invoke()
+            
+            # The output is now an array of 3 probabilities
             prediction = interpreter.get_tensor(output_details[0]['index'])
             
-            confidence = float(prediction[0][0])
-            if confidence > 0.5:
-                prediction_result = 'Pneumonia'
-            else:
-                prediction_result = 'Normal'
-                confidence = 1 - confidence
+            # --- NEW LOGIC FOR 3 CLASSES ---
+            # Find the index of the highest probability
+            predicted_class_index = np.argmax(prediction[0])
+            
+            # Get the name of the predicted class using the CLASS_NAMES list
+            prediction_result = CLASS_NAMES[predicted_class_index]
+            
+            # Get the confidence score of the highest probability
+            confidence = float(prediction[0][predicted_class_index])
 
             return jsonify({
                 'prediction': prediction_result,
@@ -102,3 +110,7 @@ def predict():
         except Exception as e:
             print(f"Prediction error: {e}")
             return jsonify({'error': 'An error occurred during prediction.'}), 500
+
+if __name__ == '__main__':
+    # Use 0.0.0.0 to make it accessible from outside a container
+    app.run(host='0.0.0.0', port=5000)
