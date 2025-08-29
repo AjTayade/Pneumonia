@@ -1,0 +1,42 @@
+Pneumonia Detection AI Web Application
+This AI tool analyzes chest X-rays to identify visual indicators of Pneumonia and COVID-19. It distinguishes these conditions from a Normal lung scan.
+
+DEPLOYMENT LINK:
+(https://pneumonia-detection-55wo.onrender.com/) 
+
+
+---
+
+##  Project Overview
+
+### Problem Statement
+The diagnosis of pneumonia from chest X-rays requires specialized expertise, and delays in analysis can impact patient care. 
+This project aimed to create an accessible tool for rapid, preliminary screening of X-rays to assist medical professionals.
+
+### Solution
+- A web application was developed that uses a Convolutional Neural Network (CNN) to classify chest X-rays. 
+- After training with techniques like data augmentation and dropout, the model achieved an overall accuracy of 91.35% on the test set. 
+- It demonstrates high correctibility, showing a precision of 95% for Pneumonia cases and a recall of 97% for Normal cases. 
+- For efficient deployment on platforms like Render, the model was optimized using TensorFlow Lite and the entire application was containerized with Docker, 
+  ensuring stability and performance.
+
+---
+
+## 🛠 Tech Stack
+
+- Backend: Python, Flask
+- Frontend: HTML, Tailwind CSS, JavaScript
+- ML/Deep Learning: TensorFlow, Keras, TFLite
+- Deployment: Docker, Gunicorn, Render
+
+---
+
+## Project Structure
+.
+├──  templates/
+│   └──  index.html       # The HTML file for the user interface.
+├──  app.py               # The Flask backend server.
+├──  Dockerfile           # Instructions to build the Docker container.
+├──  Pneumonia_CNN_model.tflite  # The lightweight, trained model.
+└──  requirements.txt     # The list of Python dependencies.
+
