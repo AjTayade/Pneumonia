@@ -14,7 +14,7 @@ app = Flask(__name__)
 # --- Model Loading (TFLite Runtime) ---
 # Define the path to your 2-class TFLite model file.
 # Make sure this file is in the same directory as app.py
-MODEL_PATH = 'Pneumonia_model.tflite'
+MODEL_PATH = 'Pneumonia_CNN_model(1).tflite'
 
 interpreter = None
 input_details = None
@@ -44,7 +44,7 @@ def preprocess_image(img_file):
         # Convert image to grayscale ('L' mode) as the model expects
         img = img.convert('L') 
         # Resize the image to the model's expected input size (150x150)
-        img = img.resize((150, 150))
+        img = img.resize((100, 100))
         # Convert to a NumPy array with the correct data type
         img_array = np.array(img, dtype=np.float32)
         # Rescale pixel values from [0, 255] to [0, 1]
