@@ -14,7 +14,7 @@ app = Flask(__name__)
 # --- Model Loading (TFLite Runtime) ---
 # Define the path to your 2-class TFLite model file.
 # Make sure this file is in the same directory as app.py
-MODEL_PATH = 'pneumonia_cnn_model_float16.tflite'
+MODEL_PATH = 'Pneumonia_CNN_model (1).tflite'
 
 interpreter = None
 input_details = None
